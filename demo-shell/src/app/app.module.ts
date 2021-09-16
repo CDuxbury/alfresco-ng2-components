@@ -19,6 +19,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { HyTranslateModule } from '@hyland/ui';
 import { ChartsModule } from 'ng2-charts';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -153,7 +154,8 @@ registerLocaleData(localeSv);
         ThemePickerModule,
         ChartsModule,
         AppCloudSharedModule,
-        MonacoEditorModule.forRoot()
+        MonacoEditorModule.forRoot(),
+        HyTranslateModule.forRoot()
     ],
     declarations: [
         AppComponent,

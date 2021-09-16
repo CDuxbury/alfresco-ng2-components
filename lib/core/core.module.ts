@@ -19,6 +19,7 @@ import { CommonModule } from '@angular/common';
 import { APP_INITIALIZER, NgModule, ModuleWithProviders } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslateLoader, TranslateStore, TranslateService } from '@ngx-translate/core';
+import { HyTranslateModule } from '@hyland/ui';
 
 import { MaterialModule } from './material.module';
 import { AboutModule } from './about/about.module';
@@ -73,6 +74,7 @@ import { VersionCompatibilityService } from './services/version-compatibility.se
         DialogModule,
         FormsModule,
         ReactiveFormsModule,
+        HyTranslateModule,
         HostSettingsModule,
         UserInfoModule,
         MaterialModule,
@@ -129,7 +131,8 @@ import { VersionCompatibilityService } from './services/version-compatibility.se
         IconModule,
         NotificationHistoryModule,
         SearchTextModule,
-        BlankPageModule
+        BlankPageModule,
+        HyTranslateModule
     ]
 })
 export class CoreModule {
