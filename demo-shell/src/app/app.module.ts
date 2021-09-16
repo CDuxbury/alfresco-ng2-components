@@ -95,6 +95,7 @@ import {
     CustomWidgetComponent
 } from './components/cloud/custom-form-components/custom-editor.component';
 import { AspectListSampleComponent } from './components/aspect-list-sample/aspect-list-sample.component';
+import { ViewerView } from './components/viewer/viewer.view';
 
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
@@ -208,7 +209,8 @@ registerLocaleData(localeSv);
         CustomWidgetComponent,
         ProcessCloudLayoutComponent,
         ServiceTaskListCloudDemoComponent,
-        SearchFilterChipsComponent
+        SearchFilterChipsComponent,
+        ViewerView
     ],
     providers: [
         {
