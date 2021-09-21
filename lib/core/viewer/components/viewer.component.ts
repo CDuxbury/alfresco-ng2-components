@@ -316,57 +316,54 @@ export class ViewerComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     ngOnChanges() {
-        if (this.showViewer) {
-            if (!this.isSourceDefined()) {
-                throw new Error('A content source attribute value is missing.');
-            }
-            this.isLoading = true;
-
-            if (this.blobFile) {
-                this.setUpBlobData();
-                this.isLoading = false;
-            } else if (this.urlFile) {
-                this.setUpUrlFile();
-                this.isLoading = false;
-            } else if (this.nodeId) {
-                this.apiService.nodesApi.getNode(this.nodeId, { include: ['allowableOperations'] }).then(
-                    (node: NodeEntry) => {
-                        this.nodeEntry = node;
-                        if (this.versionId) {
-                            this.apiService.versionsApi.getVersion(this.nodeId, this.versionId).then(
-                                (version: VersionEntry) => {
-                                    this.versionEntry = version;
-                                    this.setUpNodeFile(node.entry, version.entry).then(() => {
-                                        this.isLoading = false;
-                                    });
-                                }
-                            );
-                        } else {
-                            this.setUpNodeFile(node.entry).then(() => {
-                                this.isLoading = false;
-                            });
-                        }
-                    },
-                    () => {
-                        this.isLoading = false;
-                        this.logService.error('This node does not exist');
-                    }
-                );
-            } else if (this.sharedLinkId) {
-                this.allowGoBack = false;
-
-                this.apiService.sharedLinksApi.getSharedLink(this.sharedLinkId).then(
-                    (sharedLinkEntry: SharedLinkEntry) => {
-                        this.setUpSharedLinkFile(sharedLinkEntry);
-                        this.isLoading = false;
-                    },
-                    () => {
-                        this.isLoading = false;
-                        this.logService.error('This sharedLink does not exist');
-                        this.invalidSharedLink.next();
-                    });
-            }
+        if (!this.showViewer) {
+            return;
         }
+
+        if (!this.isSourceDefined()) {
+            throw new Error('A content source attribute value is missing.');
+        }
+        this.isLoading = true;
+
+        if (this.blobFile) {
+            this.setUpBlobData();
+            this.isLoading = false;
+        } else if (this.urlFile) {
+            this.setUpUrlFile();
+            this.isLoading = false;
+        } else if (this.nodeId) {
+            this.getNodeEntry(this.nodeId, this.versionId).then(({node, version}) => {
+                this.nodeEntry = node;
+                this.versionEntry = version;
+                return this.setUpNodeFile(node.entry, version?.entry);
+            })
+            .catch(() => this.logService.error('This node does not exist'))
+            .finally(() => this.isLoading = false);
+        } else if (this.sharedLinkId) {
+            this.allowGoBack = false;
+
+            this.apiService.sharedLinksApi.getSharedLink(this.sharedLinkId).then(
+                (sharedLinkEntry: SharedLinkEntry) => {
+                    this.setUpSharedLinkFile(sharedLinkEntry);
+                    this.isLoading = false;
+                },
+                () => {
+                    this.isLoading = false;
+                    this.logService.error('This sharedLink does not exist');
+                    this.invalidSharedLink.next();
+                });
+        }
+    }
+
+    private async getNodeEntry(nodeId:string, versionId?:string){
+        const node = await this.apiService.nodesApi.getNode(nodeId, { include: ['allowableOperations'] });
+        const version = this.versionId ? await this.apiService.versionsApi.getVersion(nodeId, versionId) : undefined;
+
+        await this.setUpNodeFile(node.entry, version?.entry);
+        return {
+            node,
+            version
+        };
     }
 
     private setUpBlobData() {
@@ -429,19 +426,13 @@ export class ViewerComponent implements OnChanges, OnInit, OnDestroy {
         }
 
         if (this.viewerType === 'unknown') {
-            if (versionData) {
-                setupNode = this.viewUtilService.displayNodeRendition(nodeData.id, versionData.id);
-            } else {
-                setupNode = this.viewUtilService.displayNodeRendition(nodeData.id);
-            }
+            await this.viewUtilService.displayNodeRendition(nodeData.id, versionData?.id);
         }
 
         this.extensionChange.emit(this.extension);
         this.sidebarRightTemplateContext.node = nodeData;
         this.sidebarLeftTemplateContext.node = nodeData;
         this.scrollTop();
-
-        return setupNode;
     }
 
     private setUpSharedLinkFile(details: any) {
