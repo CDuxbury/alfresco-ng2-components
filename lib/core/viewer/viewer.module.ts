@@ -20,8 +20,8 @@ import { NgModule } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { ExtensionsModule } from '@alfresco/adf-extensions';
+import { HyViewerModule, HyTrustPipesModule } from '@hyland/ui';
 
 import { MaterialModule } from '../material.module';
 import { ToolbarModule } from '../toolbar/toolbar.module';
@@ -43,6 +43,7 @@ import { ViewerExtensionDirective } from './directives/viewer-extension.directiv
 import { ViewerToolbarActionsComponent } from './components/viewer-toolbar-actions.component';
 import { DirectiveModule } from '../directives/directive.module';
 import { A11yModule } from '@angular/cdk/a11y';
+import { ViewerImageProjectionComponent } from './projections/image-projection';
 
 @NgModule({
     imports: [
@@ -56,7 +57,9 @@ import { A11yModule } from '@angular/cdk/a11y';
         FlexLayoutModule,
         DirectiveModule,
         A11yModule,
-        ExtensionsModule
+        ExtensionsModule,
+        HyViewerModule,
+        HyTrustPipesModule
     ],
     declarations: [
         PdfPasswordDialogComponent,
@@ -73,7 +76,8 @@ import { A11yModule } from '@angular/cdk/a11y';
         ViewerSidebarComponent,
         ViewerOpenWithComponent,
         ViewerMoreActionsComponent,
-        ViewerToolbarActionsComponent
+        ViewerToolbarActionsComponent,
+        ViewerImageProjectionComponent
     ],
     exports: [
         ViewerComponent,

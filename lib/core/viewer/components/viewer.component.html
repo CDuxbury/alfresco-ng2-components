@@ -199,6 +199,7 @@
                  fxFlexOrder="1"
                  fxFlex="1 1 auto">
                 <div class="adf-viewer-layout-content adf-viewer__fullscreen-container">
+
                     <div class="adf-viewer-content-container"
                          [ngSwitch]="viewerType">
 
@@ -214,13 +215,9 @@
                         </ng-container>
 
                         <ng-container *ngSwitchCase="'image'">
-                            <adf-img-viewer [urlFile]="urlFileContent"
-                                            [nameFile]="displayName"
-                                            [blobFile]="blobFile"
-                                            [readOnly]="readOnly"
-                                            (error)="onUnsupportedFile()"
-                                            (submit)="onSubmitFile($event)"
-                            ></adf-img-viewer>
+                            <div #viewerContainer fxFill fxLayout="column" *ngIf="dataSource$ | async as dataSource">
+                                <hy-viewer #viewer fxFlex [dataSource]="dataSource"></hy-viewer>
+                            </div>
                         </ng-container>
 
                         <ng-container *ngSwitchCase="'media'">

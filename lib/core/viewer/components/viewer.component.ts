@@ -28,7 +28,7 @@ import { ViewerMoreActionsComponent } from './viewer-more-actions.component';
 import { ViewerOpenWithComponent } from './viewer-open-with.component';
 import { ViewerSidebarComponent } from './viewer-sidebar.component';
 import { ViewerToolbarComponent } from './viewer-toolbar.component';
-import { fromEvent, Subject } from 'rxjs';
+import { fromEvent, Observable, Subject, of } from 'rxjs';
 import { ViewUtilService } from '../services/view-util.service';
 import { AppExtensionService, ViewerExtensionRef } from '@alfresco/adf-extensions';
 import { filter, skipWhile, takeUntil } from 'rxjs/operators';
@@ -36,6 +36,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ContentService } from '../../services/content.service';
 import { UploadService } from '../../services/upload.service';
 import { FileModel } from '../../models';
+import { AdfViewerDataSource } from '../models';
 
 @Component({
     selector: 'adf-viewer',
@@ -226,6 +227,8 @@ export class ViewerComponent implements OnChanges, OnInit, OnDestroy {
     viewerExtensions: Array<ViewerExtensionRef> = [];
     readOnly = true;
 
+    dataSource$?:Observable<AdfViewerDataSource>;
+
     private cacheBusterNumber;
     cacheTypeForContent = '';
 
@@ -332,9 +335,11 @@ export class ViewerComponent implements OnChanges, OnInit, OnDestroy {
             this.setUpUrlFile();
             this.isLoading = false;
         } else if (this.nodeId) {
+            this.dataSource$ = of(new AdfViewerDataSource(this.nodeId, 1));
             this.getNodeEntry(this.nodeId, this.versionId).then(({node, version}) => {
                 this.nodeEntry = node;
                 this.versionEntry = version;
+
                 return this.setUpNodeFile(node.entry, version?.entry);
             })
             .catch(() => this.logService.error('This node does not exist'))
@@ -357,9 +362,8 @@ export class ViewerComponent implements OnChanges, OnInit, OnDestroy {
 
     private async getNodeEntry(nodeId:string, versionId?:string){
         const node = await this.apiService.nodesApi.getNode(nodeId, { include: ['allowableOperations'] });
-        const version = this.versionId ? await this.apiService.versionsApi.getVersion(nodeId, versionId) : undefined;
+        const version = versionId ? await this.apiService.versionsApi.getVersion(nodeId, versionId) : undefined;
 
-        await this.setUpNodeFile(node.entry, version?.entry);
         return {
             node,
             version
@@ -397,8 +401,6 @@ export class ViewerComponent implements OnChanges, OnInit, OnDestroy {
 
     private async setUpNodeFile(nodeData: Node, versionData?: Version) {
         this.readOnly = !this.contentService.hasAllowableOperations(nodeData, 'update');
-
-        let setupNode;
 
         if (versionData && versionData.content) {
             this.mimeType = versionData.content.mimeType;
